@@ -1,0 +1,25 @@
+{
+  "name": "lasallesoftware/quickanddirtyblog",
+  "description": "A quick and dirty blog based on my LaSalle Software version 1.0",
+  "homepage": "http://lasallesoftware.ca",
+  "keywords": ["laravel", "laravel5", "blog", "LaSalle Software", "Bob Bloom"],
+  "license":"GPL-3.0",
+  "type": "library",
+  "authors": [
+    {
+      "name": "Bob Bloom",
+      "email": "bob.bloom@lasallesoftware.ca",
+      "role": "Developer",
+      "homepage": "https://lasallesoftware.ca"
+    }
+  ],
+  "require": {
+    "php": ">=7.0.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Lasallesoftware\\Quickanddirtyblog\\": "src/"
+    }
+  },
+  "minimum-stability": "dev"
+}

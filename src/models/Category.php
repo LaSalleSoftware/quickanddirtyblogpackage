@@ -32,6 +32,10 @@ namespace Lasallesoftware\Quickanddirtyblog\Models;
 
 // Laravel classes
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
+
+// FOR VOYAGER ADMIN
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Class Category
@@ -145,5 +149,31 @@ class Category extends Model
     public function children()
     {
         return $this->hasMany('Lasallesoftware\Quickanddirtyblog\Models\Category', 'parent_id', 'id');
+    }
+
+    ///////////////////////////////////////////////////////////////////
+    //////////////        LOCAL QUERY SCOPES        ///////////////////
+    ///////////////////////////////////////////////////////////////////
+    /**
+     * Scope a query to only include published tags.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopePublished($query)
+    {
+        return $query->where('enabled', '=', 1);
+    }
+
+
+    ///////////////////////////////////////////////////////////////////
+    //////////////        FOR VOYAGER ADMIN         ///////////////////
+    ///////////////////////////////////////////////////////////////////
+    public function save(array $options = [])
+    {
+        $this->created_by = Auth::user()->id;
+        $this->updated_by = Auth::user()->id;
+
+        parent::save();
     }
 }

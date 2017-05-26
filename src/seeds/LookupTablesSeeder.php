@@ -37,6 +37,7 @@ class LookupTablesSeeder extends Seeder
         Category::create([
             'parent_id'      => 0,
             'title'          => 'Blog',
+            'slug'           => 'blog',
             'content'        => '',
             'description'    => 'The main blog category',
             'featured_image' => '',

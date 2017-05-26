@@ -11,7 +11,6 @@
 |
 */
 
-Route::get('/bob', function () {
-    //return view('welcome');
-    return "Finally got it to work, eh!!!!!";
-});
+Route::get('/bob', 'Lasallesoftware\Quickanddirtyblog\Http\Controllers\BobController@mess');
+
+

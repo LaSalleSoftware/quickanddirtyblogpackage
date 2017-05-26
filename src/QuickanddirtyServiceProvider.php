@@ -32,6 +32,7 @@ namespace Lasallesoftware\Quickanddirtyblog;
 
 // Laravel classes
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Database\Eloquent\Factory as EloquentFactory;
 
 /**
  * This is the User Management service provider class.
@@ -155,6 +156,19 @@ class QuickanddirtyblogServiceProvider extends ServiceProvider
     public function register()
     {
         //$this->registerQuickanddirtyblog();
+        $this->registerModelFactories();
+    }
+
+    /**
+     * Have the app look at this package's model factories
+     *
+     * @return void
+     */
+    private function registerModelFactories()
+    {
+        $modelFactories = __DIR__ . '/../database/factories';
+
+        $this->app->make(EloquentFactory::class)->load($modelFactories);
     }
 
 

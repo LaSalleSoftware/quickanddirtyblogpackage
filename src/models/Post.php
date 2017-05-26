@@ -33,12 +33,23 @@ namespace Lasallesoftware\Quickanddirtyblog\Models;
 // Laravel classes
 use Illuminate\Database\Eloquent\Model;
 
+// Third party classes
+use Carbon\Carbon;
+
+// FOR VOYAGER ADMIN
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
+use TCG\Voyager\Facades\Voyager;
+use TCG\Voyager\Traits\Translatable;
+
 /**
  * Class Post
  * @package Lasallesoftware\Quickanddirtyblog\Models
  */
 class Post extends Model
 {
+    use Translatable;
+
     /**
      * The database table used by the model.
      *
@@ -55,8 +66,14 @@ class Post extends Model
      * @var array
      */
     protected $fillable = [
-        'title', 'slug', 'content', 'excerpt', 'meta_description', 'enabled', 'featured_image', 'publish_on'
+        'title', 'slug', 'content', 'excerpt', 'meta_description', 'enabled', 'featured_image', 'publish_on', 'created_at', 'updated_at'
     ];
+
+    /**
+     * FOR VOYAGER ADMIN
+     */
+    //protected $guarded = [];
+    //protected $translatable = ['title', 'excerpt', 'content', 'slug', 'meta_description'];
 
     /**
      * Indicates if the model should be timestamped.
@@ -148,6 +165,11 @@ class Post extends Model
         return $this->belongsToMany('Lasallesoftware\Quickanddirtyblog\Models\Category', 'post_category');
     }
 
+    // *** FOR VOYAGER ADMIN ***
+    public function categories(){
+        return $this->belongsToMany(Category::class, 'post_category');
+    }
+
     /*
      * Many to many relationship with tags.
      *
@@ -162,6 +184,11 @@ class Post extends Model
     public function tag()
     {
         return $this->belongsToMany('Lasallesoftware\Quickanddirtyblog\Models\Tag', 'post_tag');
+    }
+
+    // *** FOR VOYAGER ADMIN ***
+    public function tags(){
+        return $this->belongsToMany(Tag::class, 'post_tag');
     }
 
     /*
@@ -194,5 +221,63 @@ class Post extends Model
     public function postupdate()
     {
         return $this->hasMany('Lasallesoftware\Quickanddirtyblog\Models\Postupdate');
+    }
+
+
+    ///////////////////////////////////////////////////////////////////
+    //////////////        QUERY SCOPES              ///////////////////
+    ///////////////////////////////////////////////////////////////////
+
+    /**
+     * Scope a query to only published scopes.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopePublished(Builder $query)
+    {
+        $now = Carbon::now();
+
+        return $query->where('enable', '=', true)
+            ->where('publish_on', ' >=', $now);
+    }
+
+    ///////////////////////////////////////////////////////////////////
+    //////////////        FOR VOYAGER ADMIN         ///////////////////
+    ///////////////////////////////////////////////////////////////////
+    public function save(array $options = [])
+    {
+
+        $this->created_by = Auth::user()->id;
+        $this->updated_by = Auth::user()->id;
+
+        $this->lookup_workflow_status_id = 1;
+
+        if (($this->meta_description == "") || (!isset($this->meta_description))) {
+            $this->meta_description = $this->excerpt;
+        }
+
+        $this->canonical_url = env('APP_URL') . '/' . $this->slug;
+
+        parent::save();
+    }
+
+
+    /**
+     *   Method for returning specific thumbnail for post.
+     *
+     *  FOR VOYAGER ADMIN
+     */
+    public function thumbnail($type)
+    {
+        // We take image from posts field
+        $image = $this->attributes['image'];
+        // We need to get extension type ( .jpeg , .png ...)
+        $ext = pathinfo($image, PATHINFO_EXTENSION);
+        // We remove extension from file name so we can append thumbnail type
+        $name = rtrim($image, '.'.$ext);
+        // We merge original name + type + extension
+        return $name.'-'.$type.'.'.$ext;
     }
 }

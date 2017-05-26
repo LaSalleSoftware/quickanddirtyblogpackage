@@ -59,14 +59,16 @@ class BlogTables extends Migration
                 $table->string('meta_description');
                 $table->text('canonical_url');
                 $table->string('featured_image');
+                $table->string('image')->nullable();
                 $table->boolean('enabled')->default(true);
                 $table->boolean('postupdate')->default(false);
+                $table->boolean('sticky')->default(false);
                 $table->date('publish_on');
-                $table->timestamp('created_at');
-                $table->integer('created_by')->unsigned();
+                $table->timestamp('created_at')->nullable();
+                $table->integer('created_by')->nullable()->unsigned();
                 $table->foreign('created_by')->references('id')->on('users');
                 $table->timestamp('updated_at')->nullable();
-                $table->integer('updated_by')->unsigned();
+                $table->integer('updated_by')->nullable()->unsigned();
                 $table->foreign('updated_by')->references('id')->on('users');
                 $table->timestamp('locked_at')->nullable();
                 $table->integer('locked_by')->nullable()->unsigned();
@@ -78,23 +80,22 @@ class BlogTables extends Migration
 
             Schema::create('post_category', function (Blueprint $table) {
                 $table->engine = 'InnoDB';
-                $table->increments('id')->unsigned();
                 $table->integer('post_id')->unsigned()->index();
                 $table->foreign('post_id')->references('id')->on('posts')->onDelete('cascade');
                 $table->integer('category_id')->unsigned()->index();
                 $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
+                $table->primary(['post_id', 'category_id']);
             });
         }
 
         if (!Schema::hasTable('post_tag')) {
 
             Schema::create('post_tag', function (Blueprint $table) {
-                $table->engine = 'InnoDB';
-                $table->increments('id')->unsigned();
                 $table->integer('post_id')->unsigned()->index();
                 $table->foreign('post_id')->references('id')->on('posts')->onDelete('cascade');
                 $table->integer('tag_id')->unsigned()->index();
                 $table->foreign('tag_id')->references('id')->on('tags')->onDelete('cascade');
+                $table->primary(['post_id', 'tag_id']);
             });
         }
 

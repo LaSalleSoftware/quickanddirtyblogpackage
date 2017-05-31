@@ -229,18 +229,51 @@ class Post extends Model
     ///////////////////////////////////////////////////////////////////
 
     /**
-     * Scope a query to only published scopes.
+ * Scope a query to only published scopes.
+ *
+ * @param \Illuminate\Database\Eloquent\Builder $query
+ *
+ * @return \Illuminate\Database\Eloquent\Builder
+ */
+    public function scopePublished(Builder $query)
+    {
+        $now = Carbon::now();
+
+        return $query->where([
+            ['enabled', '=', 1],
+            ['publish_on', '<=', $now],
+        ]);
+
+    }
+
+    /**
+     * Scope a query to only "sticky" posts.
      *
      * @param \Illuminate\Database\Eloquent\Builder $query
      *
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopePublished(Builder $query)
+    public function scopeSticky(Builder $query)
     {
-        $now = Carbon::now();
+        return $query->where([
+            ['sticky', '=', 1],
+        ]);
 
-        return $query->where('enable', '=', true)
-            ->where('publish_on', ' >=', $now);
+    }
+
+    /**
+     * Scope a query to only posts that are not "sticky".
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeNotsticky(Builder $query)
+    {
+        return $query->where([
+            ['sticky', '=', 0],
+        ]);
+
     }
 
     ///////////////////////////////////////////////////////////////////

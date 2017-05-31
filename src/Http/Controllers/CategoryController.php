@@ -30,39 +30,44 @@ namespace Lasallesoftware\Quickanddirtyblog\Http\Controllers;
  *
  */
 
-
-use Illuminate\Database\Eloquent\Factory as Factory;
-
+// LaSalle Software
+use Lasallesoftware\Quickanddirtyblog\Models\Category;
 
 /**
- * Class BobController
+ * Class CategoryController
  * @package Lasallesoftware\Quickanddirtyblog\Http\Controllers
  */
-class BobController extends Controller
+class CategoryController extends Controller
 {
-    protected $factory;
+    protected $model;
 
-    public function __construct(Factory $factory)
+    public function __construct(Category $model)
     {
-        $this->factory = $factory;
+        $this->model   = $model;
     }
 
-    public function mess()
-    {
-        // MUST have the leading "\"
-        $posts = factory(\Lasallesoftware\Quickanddirtyblog\Models\Post::class, 3)->make();
-        //$posts = factory(\Lasallesoftware\Quickanddirtyblog\Models\Post::class, 3)->create();
+    public function DisplayPostsByCategory($slug) {
 
-        foreach ($posts as $post) {
-            echo "<br>title = ".$post->title;
+        $categories = $this->model
+            ->published()
+            ->where('slug', '=', $slug)
+            ->with('posts')
+            ->get()
+            ->sortBy('title')
+        ;
+
+        if (count($categories) == 0) {
+            return "NO CATEGORIES!";
+            //return redirect()->route('home');
         }
 
-        echo "<pre>";
-        //print_r($posts);
-        echo "</pre>";
+        foreach ($categories as $category) {
 
+            echo "<h1>Category: ".$category->title."</h1>";
 
-        return "<br>Finally got it to work, eh!!!!!";
-
+            foreach ($category->posts as $post) {
+                echo "<br>post title = ".$post->title;
+            }
+        }
     }
 }

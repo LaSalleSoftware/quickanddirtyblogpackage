@@ -13,6 +13,12 @@
       "homepage": "https://lasallesoftware.ca"
     }
   ],
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/LaSalleSoftware/quickanddirtyblogpackage"
+    }
+  ],
   "require": {
     "php": ">=7.0.0",
     "nesbot/carbon": "~1.21"

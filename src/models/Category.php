@@ -132,6 +132,18 @@ class Category extends Model
     }
 
     /*
+     * Many tags per single post FOR VOYAGER?
+     *
+     *  Method name must be the model name, *not* the table name
+     *
+     * @return Eloquent
+     */
+    public function posts()
+    {
+        return $this->belongsToMany('Lasallesoftware\Quickanddirtyblog\Models\Post', 'post_category');
+    }
+
+    /*
      * A category can have one parent category
      *
      * @return Eloquent

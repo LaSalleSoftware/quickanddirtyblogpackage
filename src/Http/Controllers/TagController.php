@@ -1,5 +1,6 @@
 <?php
 
+namespace Lasallesoftware\Quickanddirtyblog\Http\Controllers;
 
 /**
  *
@@ -30,21 +31,45 @@
  */
 
 
-Route::get('/bob', 'Lasallesoftware\Quickanddirtyblog\Http\Controllers\PostController@bob');
+// LaSalle Software
+use Lasallesoftware\Quickanddirtyblog\Models\Tag;
 
-// Posts by tag
-Route::get('tag/{title}', 'Lasallesoftware\Quickanddirtyblog\Http\Controllers\TagController@DisplayPostsByTag');
 
-// Posts by category
-Route::get('/category/{slug}', 'Lasallesoftware\Quickanddirtyblog\Http\Controllers\CategoryController@DisplayPostsByCategory');
-
-// All posts
-Route::get('/blog_posts', 'Lasallesoftware\Quickanddirtyblog\Http\Controllers\PostController@DisplayAllPosts')->name('displayallposts');
-
-// Single post
-if (!Request::is('admin'))
+/**
+ * Class TagController
+ * @package Lasallesoftware\Quickanddirtyblog\Http\Controllers
+ */
+class TagController extends Controller
 {
-    Route::get('{slug}', 'Lasallesoftware\Quickanddirtyblog\Http\Controllers\PostController@DisplaySinglePost');
+    protected $model;
+
+    public function __construct(Tag $model)
+    {
+        $this->model   = $model;
+    }
+
+    public function DisplayPostsByTag($title) {
+
+        $tags = $this->model
+            ->published()
+            ->where('title', '=', $title)
+            ->with('posts')
+            ->get()
+            ->sortBy('title')
+        ;
+
+        if (count($tags) == 0) {
+            return "NO TAGS!";
+            //return redirect()->route('home');
+        }
+
+        foreach ($tags as $tag) {
+
+            echo "<h1>Tag: ".$tag->title."</h1>";
+
+            foreach ($tag->posts as $post) {
+                echo "<br>post title = ".$post->title;
+            }
+        }
+    }
 }
-
-

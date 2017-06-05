@@ -80,6 +80,18 @@ class Tag extends Model
      *
      * @return Eloquent
      */
+    public function post()
+    {
+        return $this->hasMany('Lasallesoftware\Quickanddirtyblog\Models\Post', 'post_tag');
+    }
+
+    /*
+     * Many tags per single post  FOR VOYAGER ADMIN
+     *
+     *  Method name must be the model name, *not* the table name
+     *
+     * @return Eloquent
+     */
     public function posts()
     {
         return $this->belongsToMany('Lasallesoftware\Quickanddirtyblog\Models\Post', 'post_tag');

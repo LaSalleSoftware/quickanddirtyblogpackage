@@ -36,6 +36,10 @@ use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
+// LaSalle Software
+use Lasallesoftware\Quickanddirtyblog\Models\Post;
+use App\User;
+
 /**
  * Class Controller
  * @package Lasallesoftware\Quickanddirtyblog
@@ -43,4 +47,121 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
+
+
+
+    public function formatDate($post)
+    {
+        if ((!empty($post->updated_at)) || ($post->updated_at == "0000-00-00 00:00:00")) {
+
+            $html = "Updated " . $post->updated_at->toFormattedDateString();
+
+            if ($post->created_at <> $post->updated_at) {
+                $html .= " (Originally Published " . $post->created_at->toFormattedDateString()  . ")";
+            }
+
+            return $html;
+        }
+
+        return "Published " . $post->created_at->toFormattedDateString();
+    }
+
+    public function authorName($post)
+    {
+        if (!empty($post->updated_by)) {
+            $name =  User::find($post->updated_by)->first()->name;
+        } else {
+            $name = User::find($post->created_by)->first()->name;
+        }
+
+        return "By " . $name;
+    }
+
+    public function formatCategories($post)
+    {
+        if (count($post->categories) == 0) {
+            return "This Post Has No Categories";
+        }
+
+        if (count($post->categories) == 1) {
+            $html = "Category: ";
+        } else {
+            $html = "Categories: ";
+        }
+
+        $i    = 1;
+        foreach ($post->categories as $category) {
+            $html .= '<a href="/category/'.$category->slug.'">'.$category->title.'</a> ';
+            $html .= $this->listOfLinksDelimiter($i, count($post->categories));
+            $i++;
+        }
+
+        return $html;
+    }
+
+    public function formatTags($post)
+    {
+        if (count($post->tags) == 0) {
+            return "This Post Has No Tags";
+        }
+
+        if (count($post->tags) == 1) {
+            $html = "Tag: ";
+        } else {
+            $html = "Tags: ";
+        }
+        $i    = 1;
+        foreach ($post->tags as $tag) {
+            $html .= '<a href="/tag/'.$tag->title.'">'.$tag->title.'</a> ';
+            $html .= $this->listOfLinksDelimiter($i, count($post->tags));
+            $i++;
+        }
+
+        return $html;
+    }
+
+    public function listOfLinksDelimiter($counter, $number_of_items)
+    {
+        // this is the last link in the list, so there is no delimiter to return
+        if ($counter == $number_of_items) {
+            return "";
+        }
+
+        return " " . $this->delimiter . " ";
+    }
+
+
+    public function formatPreviousPost($updated_at)
+    {
+        $previous = $this->model
+            ->published()
+            ->notsticky()
+            ->where('updated_at', '<', $updated_at)
+            ->orderBy('updated_at', 'desc')
+            ->first()
+        ;
+
+        if (count($previous) == 0) {
+            return false;
+        }
+
+        return 'Previous Post: <a href="'.$previous->canonical_url.'">'.$previous->title.'</a>';
+    }
+
+    public function formatNextPost($updated_at)
+    {
+        $next = $this->model
+            ->published()
+            ->notsticky()
+            ->where('updated_at', '>', $updated_at)
+            ->orderBy('updated_at', 'asc')
+            ->first()
+        ;
+
+        if (count($next) == 0) {
+            return false;
+        }
+
+        return 'Next Post: <a href="'.$next->canonical_url.'">'.$next->title.'</a>';
+    }
 }

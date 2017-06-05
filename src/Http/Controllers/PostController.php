@@ -36,8 +36,7 @@ use Illuminate\Database\Eloquent\Factory as Factory;
 // LaSalle Software
 use Lasallesoftware\Quickanddirtyblog\Models\Post;
 
-
-
+// Third party classes
 use Carbon\Carbon;
 
 
@@ -51,29 +50,13 @@ class PostController extends Controller
 
     protected $model;
 
+    public $delimiter = "|";
+
+
     public function __construct(Factory $factory, Post $model)
     {
         $this->factory = $factory;
         $this->model   = $model;
-    }
-
-    public function bob()
-    {
-        // MUST have the leading "\"
-        $posts = factory(\Lasallesoftware\Quickanddirtyblog\Models\Post::class, 3)->make();
-        //$posts = factory(\Lasallesoftware\Quickanddirtyblog\Models\Post::class, 3)->create();
-
-        foreach ($posts as $post) {
-            echo "<br>title = ".$post->title;
-        }
-
-        echo "<pre>";
-        //print_r($posts);
-        echo "</pre>";
-
-
-        return "<br>Finally got it to work, eh!!!!!";
-
     }
 
     public function DisplayAllPosts()
@@ -84,8 +67,8 @@ class PostController extends Controller
             ->sticky()
             ->with('tags')
             ->with('categories')
+            ->orderBy('updated_at', 'desc')
             ->get()
-            ->sortByDesc('updated_at')
         ;
 
         // Non-sticky posts
@@ -94,8 +77,8 @@ class PostController extends Controller
             ->notsticky()
             ->with('tags')
             ->with('categories')
+            ->orderBy('updated_at', 'desc')
             ->get()
-            ->sortByDesc('updated_at')
         ;
 
 
@@ -107,20 +90,21 @@ class PostController extends Controller
             //return redirect()->route('home');
         }
 
-        foreach ($posts as $post) {
+        $pageTitle          = "Blog Posts | " .config('app.name');
+        $articleTitle       = "Blog Posts";
+        $articleDescription = "Blog Posts";
+        $socialtagurl       = env('APP_URL') . '/blog/all';
+        $header_image       = config('socialtags.defaultblogimage');
 
-            echo "<br>======<br>title = ".$post->title . " (".$post->slug.")";
-
-            echo "<h4>tags:</h4>";
-            foreach ($post->tags as $tag) {
-                echo $tag->title . "<br>";
-            }
-
-            echo "<h4>categories:</h4>";
-            foreach ($post->categories as $category) {
-                echo $category->title . "<br>";
-            }
-        }
+        return view('blog.list_posts')->with([
+            'skip_tags_social_media' => true,
+            'pageTitle'              => $pageTitle,
+            'articleTitle'           => $articleTitle,
+            'articleDescription'     => $articleDescription,
+            'socialtagurl'           => $socialtagurl,
+            'header_image'           => $header_image,
+            'posts'                  => $posts,
+        ]);
     }
 
     public function DisplaySinglePost($slug) {
@@ -136,8 +120,42 @@ class PostController extends Controller
             return redirect()->route('displayallposts');
         }
 
+        $pageTitle          = $post->title . " | " .config('app.name');
+        $articleTitle       = $post->title;
+        $articleDescription = $post->excerpt;
+        $socialtagurl       = $post->canonical_url;
+        $socialtagimage     = env('APP_URL') . '/storage/' . $post->featured_image;
+        $socialtagdatetime  = date('Y-m-d H:i:s');
 
-        echo "<br>count = ".count($post);
-        echo "<br>title = ".$post->title;
+        $post_title         = $post->title;
+        $post_content       = $post->content;
+        $post_date          = $this->formatDate($post);
+        $post_author        = $this->authorName($post);
+        $post_categories    = $this->formatCategories($post);
+        $post_tags          = $this->formatTags($post);
+        $post_previous      = $this->formatPreviousPost($post->updated_at);
+        $post_next          = $this->formatNextPost($post->updated_at);
+
+
+        return view('blog.single_post')->with([
+                'pageTitle'              => $pageTitle,
+                'articleTitle'           => $articleTitle,
+                'articleDescription'     => $articleDescription,
+                'socialtagurl'           => $socialtagurl,
+                'socialtagimage'         => $socialtagimage,
+                'socialtagdatetime'      => $socialtagdatetime,
+
+                //'skip_tags_social_media' => true,
+                'post_title'             => $post_title,
+                'post_content'           => $post_content,
+                'post_date'              => $post_date,
+                'post_author'            => $post_author,
+                'post_categories'        => $post_categories,
+                'post_tags'              => $post_tags,
+                'featured_image'         => $socialtagimage,
+
+                'post_previous'          => $post_previous,
+                'post_next'              => $post_next,
+        ]);
     }
 }

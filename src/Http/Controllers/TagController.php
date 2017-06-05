@@ -34,6 +34,9 @@ namespace Lasallesoftware\Quickanddirtyblog\Http\Controllers;
 // LaSalle Software
 use Lasallesoftware\Quickanddirtyblog\Models\Tag;
 
+// Third party classes
+use Carbon\Carbon;
+
 
 /**
  * Class TagController
@@ -48,28 +51,40 @@ class TagController extends Controller
         $this->model   = $model;
     }
 
-    public function DisplayPostsByTag($title) {
+    public function DisplayPostsByTag($title)
+    {
+
+        // https://laravel.com/docs/5.4/eloquent-relationships#constraining-eager-loads
+
+        $now = Carbon::now();
 
         $tags = $this->model
             ->published()
             ->where('title', '=', $title)
-            ->with('posts')
-            ->get()
-            ->sortBy('title')
-        ;
+            ->with(['posts' => function ($query) use ($now) {
+                $query->where('enabled', '=', 1);
+                $query->where('publish_on', '<=', $now);
+            }])
+            ->first();
 
-        if (count($tags) == 0) {
-            return "NO TAGS!";
-            //return redirect()->route('home');
+        if (count($tags->posts) == 0) {
+            return redirect()->route('displayallposts');
         }
 
-        foreach ($tags as $tag) {
+        $pageTitle          = "Blog Posts With The " . $tags->title . " Tag | " . config('app.name');
+        $articleTitle       = 'Blog Posts With The "' . $tags->title . '" Tag';
+        $articleDescription = "Blog Posts With The " . $tags->title . " Tag";
+        $socialtagurl       = env('APP_URL') . '/tag/' . $title;
+        $header_image       = config('socialtags.defaultblogimage');
 
-            echo "<h1>Tag: ".$tag->title."</h1>";
-
-            foreach ($tag->posts as $post) {
-                echo "<br>post title = ".$post->title;
-            }
-        }
+        return view('blog.list_posts')->with([
+            'skip_tags_social_media' => true,
+            'pageTitle'              => $pageTitle,
+            'articleTitle'           => $articleTitle,
+            'articleDescription'     => $articleDescription,
+            'socialtagurl'           => $socialtagurl,
+            'header_image'           => $header_image,
+            'posts'                  => $tags->posts->sortByDesc('updated_at'),
+        ]);
     }
 }

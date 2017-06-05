@@ -162,7 +162,8 @@ class Post extends Model
     */
     public function category()
     {
-        return $this->belongsToMany('Lasallesoftware\Quickanddirtyblog\Models\Category', 'post_category');
+        //return $this->belongsToMany('Lasallesoftware\Quickanddirtyblog\Models\Category', 'post_category');
+        return $this->hasMany('Lasallesoftware\Quickanddirtyblog\Models\Category', 'post_category');
     }
 
     // *** FOR VOYAGER ADMIN ***
@@ -183,7 +184,7 @@ class Post extends Model
      */
     public function tag()
     {
-        return $this->belongsToMany('Lasallesoftware\Quickanddirtyblog\Models\Tag', 'post_tag');
+        return $this->hasMany('Lasallesoftware\Quickanddirtyblog\Models\Tag', 'post_tag');
     }
 
     // *** FOR VOYAGER ADMIN ***

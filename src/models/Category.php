@@ -128,7 +128,8 @@ class Category extends Model
      */
     public function post()
     {
-        return $this->belongsToMany('Lasallesoftware\Quickanddirtyblog\Models\Post', 'post_category');
+        //return $this->belongsToMany('Lasallesoftware\Quickanddirtyblog\Models\Post', 'post_category');
+        return $this->hasMany('Lasallesoftware\Quickanddirtyblog\Models\Post', 'post_category');
     }
 
     /*

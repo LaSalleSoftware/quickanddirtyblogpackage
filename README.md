@@ -11,7 +11,24 @@ I have almost half a dozen of my own websites to do, including consolidating thr
  
  # Caveat
  
- When I say "quick and dirty", it's no joke that I am intending this package to be disposable. It is meant to get me "over the hump" en route to using LaSalle Software v2 for my sites. So, yes, this is feature incomplete. You will rant and rave at the lack of tests.  I am taking it easy with setting up GitHub for this package. I might use this package to poke around the new GitHub features, though [(Introducing GitHub Marketplace and more tools to customize your workflow)](https://github.com/blog/2359-introducing-github-marketplace-and-more-tools-to-customize-your-workflow).
+ When I say "quick and dirty", it's no joke that I am intending this package to be disposable. It is meant to get me "over the hump" en route to using LaSalle Software v2 for my sites. 
+ 
+ # Caveat Part Deux
+ 
+ Well, I took huge liberties that basically subvert package development. 
+ 
+ It started with the introduction of the Voyager Admin, which required, among other things, real database fields as form field placeholders for many-to-many table relations. I understand what they are doing, they are clear they are still in workable alpha state, but doing this offends my database sensibilities. 
+ 
+ There are no views in this package. I just went ahead and created views directly in the app itself because there are custom css and my need is to integrate my blog with custom templates. 
+ 
+ I then decided I could skip docblocks. It's a slippery slope, my friends!
+ 
+ There are bright spots:
+   * "sticky" posts -- definitely will have this in my v2 software
+   * expressing db table relationships with Eloquent 
+   * local scopes are kick-ass -- thank you Laravel!
+   * it's been fascinating deep-diving into very good admin package
+   * not using Packagist is kinda nice
  
  
  # A Real Composer Installable Package Based on the Laravel Framework

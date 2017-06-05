@@ -30,8 +30,6 @@
  */
 
 
-Route::get('/bob', 'Lasallesoftware\Quickanddirtyblog\Http\Controllers\PostController@bob');
-
 // Posts by tag
 Route::get('tag/{title}', 'Lasallesoftware\Quickanddirtyblog\Http\Controllers\TagController@DisplayPostsByTag');
 
@@ -39,9 +37,10 @@ Route::get('tag/{title}', 'Lasallesoftware\Quickanddirtyblog\Http\Controllers\Ta
 Route::get('/category/{slug}', 'Lasallesoftware\Quickanddirtyblog\Http\Controllers\CategoryController@DisplayPostsByCategory');
 
 // All posts
-Route::get('/blog_posts', 'Lasallesoftware\Quickanddirtyblog\Http\Controllers\PostController@DisplayAllPosts')->name('displayallposts');
+Route::get('/blog/all', 'Lasallesoftware\Quickanddirtyblog\Http\Controllers\PostController@DisplayAllPosts')->name('displayallposts');
 
 // Single post
+// This route should be the last non-admin route evaluated
 if (!Request::is('admin'))
 {
     Route::get('{slug}', 'Lasallesoftware\Quickanddirtyblog\Http\Controllers\PostController@DisplaySinglePost');

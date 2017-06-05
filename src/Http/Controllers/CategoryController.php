@@ -33,6 +33,9 @@ namespace Lasallesoftware\Quickanddirtyblog\Http\Controllers;
 // LaSalle Software
 use Lasallesoftware\Quickanddirtyblog\Models\Category;
 
+// Third party classes
+use Carbon\Carbon;
+
 /**
  * Class CategoryController
  * @package Lasallesoftware\Quickanddirtyblog\Http\Controllers
@@ -48,26 +51,38 @@ class CategoryController extends Controller
 
     public function DisplayPostsByCategory($slug) {
 
+        // https://laravel.com/docs/5.4/eloquent-relationships#constraining-eager-loads
+
+        $now = Carbon::now();
+
         $categories = $this->model
             ->published()
             ->where('slug', '=', $slug)
-            ->with('posts')
-            ->get()
-            ->sortBy('title')
+            ->with(['posts' => function ($query) use($now) {
+                $query->where('enabled', '=', 1);
+                $query->where('publish_on', '<=', $now);
+            }])
+            ->first()
         ;
 
-        if (count($categories) == 0) {
-            return "NO CATEGORIES!";
-            //return redirect()->route('home');
+        if (count($categories->posts) == 0) {
+            return redirect()->route('displayallposts');
         }
 
-        foreach ($categories as $category) {
+        $pageTitle          = "Blog Posts With The ".$categories->title." Category | " .config('app.name');
+        $articleTitle       = 'Blog Posts With The "'.$categories->title.'" Category';
+        $articleDescription = "Blog Posts With The ".$categories->title." Category";
+        $socialtagurl       = env('APP_URL') . '/category/'.$slug;
+        $header_image       = config('socialtags.defaultblogimage');
 
-            echo "<h1>Category: ".$category->title."</h1>";
-
-            foreach ($category->posts as $post) {
-                echo "<br>post title = ".$post->title;
-            }
-        }
+        return view('blog.list_posts')->with([
+            'skip_tags_social_media' => true,
+            'pageTitle'              => $pageTitle,
+            'articleTitle'           => $articleTitle,
+            'articleDescription'     => $articleDescription,
+            'socialtagurl'           => $socialtagurl,
+            'header_image'           => $header_image,
+            'posts'                  => $categories->posts->sortByDesc('updated_at'),
+        ]);
     }
 }

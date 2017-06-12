@@ -69,12 +69,10 @@ class Controller extends BaseController
     public function authorName($post)
     {
         if (!empty($post->updated_by)) {
-            $name =  User::find($post->updated_by)->first()->name;
-        } else {
-            $name = User::find($post->created_by)->first()->name;
+            return User::find($post->updated_by)->name;
         }
 
-        return "By " . $name;
+        return User::find($post->created_by)->name;
     }
 
     public function formatCategories($post)

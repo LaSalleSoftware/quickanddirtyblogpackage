@@ -43,7 +43,9 @@ Route::get('/blog/all', 'Lasallesoftware\Quickanddirtyblog\Http\Controllers\Post
 // This route should be the last non-admin route evaluated
 if (!Request::is('admin'))
 {
-    Route::get('{slug}', 'Lasallesoftware\Quickanddirtyblog\Http\Controllers\PostController@DisplaySinglePost');
+    if (!config('quickanddirtyblog.suppress_frontend_slug_route')) {
+         Route::get('{slug}', 'Lasallesoftware\Quickanddirtyblog\Http\Controllers\PostController@DisplaySinglePost');
+    }
 }
 
 
